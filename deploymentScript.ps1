@@ -1,11 +1,18 @@
-param([string] $PackageUri, [string] $SubscriptionId, [string] $ResourceGroupName, [string] $FunctionAppName, [string] $ObjectId, [string] $Scope)
+param([string] $PackageUri, [string] $SubscriptionId, [string] $ResourceGroupName, [string] $FunctionAppName, [string] $KeyVaultName, [string] $FAScope, [string] $KVScope)
 
-$credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:AppId, (ConvertTo-SecureString $env:AppSecret -AsPlainText -Force)
-Connect-AzAccount -ServicePrincipal -TenantId $env:TenantId -Credential $credential -Subscription $SubscriptionId
-
+#Download Function App package and publish.
 Invoke-WebRequest -Uri $PackageUri -OutFile functionPackage.zip
-
 Publish-AzWebapp -ResourceGroupName $ResourceGroupName -Name $FunctionAppName -ArchivePath functionPackage.zip -Force
 
-Remove-AzRoleAssignment -ObjectId $ObjectId -RoleDefinitionName Owner -Scope $Scope
+#Get list of Function App outbound IPs so we can restrict network access on the Key Vault.
+$functionAppIps = (Get-AzFunctionApp -ResourceGroupName $ResourceGroupName -Name $FunctionAppName).OutboundIPAddress.Split(',')
+
+foreach ($ip in $functionAppIps) {
+    Add-AzKeyVaultNetworkRule -VaultName $KeyVaultName -IpAddressRange $ip
+}
+Update-AzKeyVaultNetworkRuleSet -VaultName $KeyVaultName -DefaultAction Deny -Bypass None
+
+#Cleanup the Service Principal Owner role assignments now that access is no longer needed.
+Remove-AzRoleAssignment -ObjectId $ObjectId -RoleDefinitionName Owner -Scope $FAScope
+Remove-AzRoleAssignment -ObjectId $ObjectId -RoleDefinitionName Owner -Scope $KVScope
   
