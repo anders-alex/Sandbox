@@ -1,5 +1,7 @@
 param([string] $PackageUri, [string] $SubscriptionId, [string] $ResourceGroupName, [string] $FunctionAppName, [string] $KeyVaultName, [string] $FAScope, [string] $KVScope)
 
+Set-AzContext -Subscription $SubscriptionId
+
 #Download Function App package and publish.
 Invoke-WebRequest -Uri $PackageUri -OutFile functionPackage.zip
 Publish-AzWebapp -ResourceGroupName $ResourceGroupName -Name $FunctionAppName -ArchivePath functionPackage.zip -Force
