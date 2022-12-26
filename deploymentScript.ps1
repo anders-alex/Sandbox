@@ -1,4 +1,4 @@
-param([string] $PackageUri, [string] $SubscriptionId, [string] $ResourceGroupName, [string] $FunctionAppName, [string] $KeyVaultName, [string] $FAScope, [string] $KVScope)
+param([string] $PackageUri, [string] $SubscriptionId, [string] $ResourceGroupName, [string] $FunctionAppName, [string] $KeyVaultName, [string] $FAScope, [string] $KVScope, [string] $UAMIPrincipalId)
 
 Set-AzContext -Subscription $SubscriptionId
 
