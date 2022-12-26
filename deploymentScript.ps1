@@ -15,6 +15,6 @@ foreach ($ip in $functionAppIps) {
 Update-AzKeyVaultNetworkRuleSet -VaultName $KeyVaultName -DefaultAction Deny -Bypass None
 
 #Cleanup the Service Principal Owner role assignments now that access is no longer needed.
-Remove-AzRoleAssignment -ObjectId $ObjectId -RoleDefinitionName Owner -Scope $FAScope
-Remove-AzRoleAssignment -ObjectId $ObjectId -RoleDefinitionName Owner -Scope $KVScope
+Remove-AzRoleAssignment -ObjectId $UAMIPrincipalId -RoleDefinitionName Owner -Scope $FAScope
+Remove-AzRoleAssignment -ObjectId $UAMIPrincipalId -RoleDefinitionName Owner -Scope $KVScope
   
